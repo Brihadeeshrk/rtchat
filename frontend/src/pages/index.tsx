@@ -1,5 +1,5 @@
 import Head from "next/head";
-import { signIn, useSession } from "next-auth/react";
+import { signIn, useSession, signOut } from "next-auth/react";
 
 export default function Home() {
   const { data } = useSession();
@@ -15,6 +15,7 @@ export default function Home() {
       </Head>
       <div>
         <button onClick={() => signIn("google")}>sign in</button>
+        {data?.user && <button onClick={() => signOut()}>sign out</button>}
       </div>
     </>
   );
