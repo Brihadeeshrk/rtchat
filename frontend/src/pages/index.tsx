@@ -7,9 +7,12 @@ import Head from "next/head";
 import { Session } from "next-auth";
 
 export default function Home() {
-  const { data } = useSession();
+  const { data: session } = useSession();
 
-  console.log(data);
+  console.log("THIS IS THE SESSION", session);
+
+  const reloadSession = () => {};
+
   return (
     <>
       <Head>
@@ -18,7 +21,13 @@ export default function Home() {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <Box>{data?.user ? <Chat /> : <Auth />}</Box>
+      <Box>
+        {session?.user.username ? (
+          <Chat />
+        ) : (
+          <Auth session={session} reloadSession={reloadSession} />
+        )}
+      </Box>
     </>
   );
 }
