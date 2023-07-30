@@ -1,0 +1,13 @@
+// The tsconfig.json file enables you to configure how TypeScript will compile your code. Add the following configuration to your tsconfig.json file
+{
+    "compilerOptions": {
+      "rootDirs": ["src"],
+      "outDir": "dist",
+      "lib": ["es2020"],
+      "target": "es2020",
+      "module": "esnext",
+      "moduleResolution": "node",
+      "esModuleInterop": true,
+      "types": ["node"]
+    }
+  }
