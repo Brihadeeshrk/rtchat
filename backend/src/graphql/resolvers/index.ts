@@ -1,5 +1,5 @@
 // all of our user related resolvers
-import userResolvers from "./user";
+import { userResolvers } from "./user";
 import merge from "lodash.merge";
 
 // we need to use lodash to merge all the resolvers into 1

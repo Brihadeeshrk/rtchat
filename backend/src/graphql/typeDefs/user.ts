@@ -1,7 +1,7 @@
 import { gql } from "apollo-server-core";
 
 // all the typeDefns that are related to a user
-const typeDefs = gql`
+export const userTypeDefs = gql`
   # we can declare an entity type in a graphQL string using the keyword type followed by the name of the entity
 
   # inside of these {} we can declare all of the fields the user is going to have as well as the types of these fields
@@ -35,4 +35,4 @@ const typeDefs = gql`
   }
 `;
 
-export default typeDefs;
+// export userTypeDefs;

@@ -1,5 +1,5 @@
 // importing all typeDefs here and exporting it as one single typeDef
-import userTypeDefs from "./user";
+import { userTypeDefs } from "./user";
 
 const typeDefs = [userTypeDefs];
 

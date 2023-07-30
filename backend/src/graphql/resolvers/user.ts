@@ -10,7 +10,7 @@ a SUBSCRIPTION resolver
 // the resolvers for Query and Mutation were taken from the typeDef file: graphql/typeDefs/user
 // we will write out the logic in here
 
-const resolver = {
+export const userResolvers = {
   Query: {
     // all of our user related query resolvers
     searchUsers: () => {},
@@ -19,7 +19,5 @@ const resolver = {
     // all of our user related mutation resolvers
     createUsername: () => {},
   },
-  Subscription: {},
+  // Subscription: {},
 };
-
-export default resolver;
