@@ -9,6 +9,7 @@ import resolvers from "./graphql/resolvers/index";
 import { makeExecutableSchema } from "@graphql-tools/schema";
 import * as dotenv from "dotenv";
 import { createServer } from "http";
+import { getSession } from "next-auth/react";
 
 async function main() {
   // initialising to use ENV files
@@ -38,13 +39,23 @@ async function main() {
   await server.start();
 
   // context for the server is dealt here, for more info on context go to graphql/resolvers/user
+  // the context is a callback fn that is going to be called when the client first communicates with the server and its going to be async
+  // and it is through this callback fn that our client is going to send imp info to the server and that is why credentials is set to TRUE in corsOptions
   app.use(
     "/graphql",
     cors<cors.CorsRequest>(corsOptions),
     json(),
     expressMiddleware(server, {
-      context: async ({ req, res }) => {
-        return {};
+      // the req obj is going to contain the header info provided by next-auth using a fn called getSession()
+      // point is to put info in here that is required and essential to all resolvers
+      // 1 - User Session
+      // 2 - Prisma Client that is used to communicate with db
+      // 3 - Pubsub (not imp rn)
+      context: async ({ req }) => {
+        // the client app sends us the auth headers necessary for validation, this is passed ot the getSession() and this returns the currently logged in user
+        const session = await getSession({ req });
+        // console.log("CONSOLE SESSION", req);
+        return { session };
       },
     })
   );

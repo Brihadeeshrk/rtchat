@@ -38,8 +38,11 @@ const userResolvers = {
       const { username } = args;
       console.log("HERE AT THE createUsername API", username);
 
-      // console.logging context
-      console.log("HERE AT THE createUsername API - context", context);
+      // in order to set the username for a particular user, we need the currently logged in user and a way to communicate with the db
+      // and this is where, we use next auth sessions
+
+      // in the front end, we do this using prisma
+      // we'll do the same thing here
     },
   },
   // Subscription: {},
