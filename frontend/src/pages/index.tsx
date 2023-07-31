@@ -4,7 +4,6 @@ import { Box } from "@chakra-ui/react";
 import { NextPageContext } from "next";
 import { getSession, useSession } from "next-auth/react";
 import Head from "next/head";
-import { Session } from "next-auth";
 
 export default function Home() {
   const { data: session } = useSession();

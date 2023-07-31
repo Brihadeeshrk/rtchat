@@ -54,7 +54,7 @@ async function main() {
       context: async ({ req }) => {
         // the client app sends us the auth headers necessary for validation, this is passed ot the getSession() and this returns the currently logged in user
         const session = await getSession({ req });
-        // console.log("CONSOLE SESSION", req);
+        console.log("CONSOLE SESSION", session);
         return { session };
       },
     })
