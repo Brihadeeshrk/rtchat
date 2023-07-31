@@ -17,9 +17,29 @@ const userResolvers = {
   },
   Mutation: {
     // all of our user related mutation resolvers
+
+    /* all mutations are passed 4 args IN THIS PARTICULAR ORDER
+    parent: the return value of this resolver's parent (not imp in this case)
+
+    args: an obj that contains all the args provided for this mutation (imp)
+
+    context: an obj that is shared across ALL resolvers for a particular operation, typically used to share auth info among all operations (imp)
+
+    info: contains info on the ops execution state (not imp)
+    */
+
     createUsername: (_: any, args: { username: string }, context: any) => {
+      // convention: if there are args that you dont need or arent going to use, you can just declare them as '_' to indicate that youre not really doing anything with them
+      // the type for args varies from resolver to resolver, in this particular case, we expect a username of type string
+      // we need to create an interface for the context called GraphQLContext, when we deal with contextx, but for now we can just say any and we'll update this later
+      // and we dont really need info, so we'll omit that
+
+      // destructuring username from args
       const { username } = args;
       console.log("HERE AT THE createUsername API", username);
+
+      // console.logging context
+      console.log("HERE AT THE createUsername API - context", context);
     },
   },
   // Subscription: {},

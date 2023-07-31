@@ -11,6 +11,7 @@ import * as dotenv from "dotenv";
 import { createServer } from "http";
 
 async function main() {
+  // initialising to use ENV files
   dotenv.config();
 
   const app = express();
@@ -19,12 +20,16 @@ async function main() {
   // package used to create an executable schema
   const schema = makeExecutableSchema({ typeDefs, resolvers });
 
+  // creating the apollo server
   const server = new ApolloServer({
     schema,
     csrfPrevention: true,
     plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
   });
 
+  // options to handle cors, otigin can be an array of url's
+  // such as [process.env.CLIENT_ORIGIN, process.env.PROD_ORIGIN, ...]
+  // credentials is set to true to permit the use of credentials in the server
   const corsOptions = {
     origin: process.env.CLIENT_ORIGIN,
     credentials: true,
@@ -32,12 +37,15 @@ async function main() {
 
   await server.start();
 
+  // context for the server is dealt here, for more info on context go to graphql/resolvers/user
   app.use(
     "/graphql",
     cors<cors.CorsRequest>(corsOptions),
     json(),
     expressMiddleware(server, {
-      context: async ({ req }) => ({ token: req.headers.token }),
+      context: async ({ req, res }) => {
+        return {};
+      },
     })
   );
 
