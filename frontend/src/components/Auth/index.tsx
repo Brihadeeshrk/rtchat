@@ -27,6 +27,7 @@ import userOperations from "@/graphql/operations/user";
 the data we need to pass into the GQl query, which in this case is a username of type string
 */
 import { CreateUsernameData, CreateUsernameVariables } from "@/util/types";
+import toast from "react-hot-toast";
 
 const Auth: React.FC<indexProps> = ({ session, reloadSession }) => {
   const [username, setUsername] = useState("");
@@ -69,11 +70,14 @@ const Auth: React.FC<indexProps> = ({ session, reloadSession }) => {
         throw new Error(error);
       }
 
+      toast.success("Username successfully created! 🚀");
+
       // if it has reached this till this point, there have not been any errors
       // reload session to obtain new username
       reloadSession();
-    } catch (error) {
-      console.log("onSubmit Error");
+    } catch (error: any) {
+      toast.error(error?.message);
+      console.log("onSubmit Error", error);
     }
   };
 
