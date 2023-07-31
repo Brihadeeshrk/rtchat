@@ -37,12 +37,10 @@ const Auth: React.FC<indexProps> = ({ session, reloadSession }) => {
   y => the structure of the data to be provided as a param
   */
 
-  const [createUsername, { data, loading, error }] = useMutation<
+  const [createUsername, { loading, error }] = useMutation<
     CreateUsernameData,
     CreateUsernameVariables
   >(userOperations.Mutations.createUsername);
-
-  console.log("HERE IS DATA", data, loading, error);
 
   const onSubmit = async () => {
     if (!username) return;
@@ -53,7 +51,27 @@ const Auth: React.FC<indexProps> = ({ session, reloadSession }) => {
     // for now, a simple try-catch block here, but eventually a server will be built
     try {
       // createUsername mutation to send our username to the GraphQL API
-      await createUsername({ variables: { username: username } });
+      const { data } = await createUsername({
+        variables: { username: username },
+      });
+
+      // if for some reason, invalid response was obtained
+      if (!data?.createUsername) {
+        throw new Error();
+      }
+
+      // if the response has some error
+      if (data.createUsername.error) {
+        const {
+          createUsername: { error },
+        } = data;
+
+        throw new Error(error);
+      }
+
+      // if it has reached this till this point, there have not been any errors
+      // reload session to obtain new username
+      reloadSession();
     } catch (error) {
       console.log("onSubmit Error");
     }
@@ -71,7 +89,7 @@ const Auth: React.FC<indexProps> = ({ session, reloadSession }) => {
                 value={username}
                 onChange={(event) => setUsername(event.target.value)}
               />
-              <Button width="100%" onClick={onSubmit}>
+              <Button isLoading={loading} width="100%" onClick={onSubmit}>
                 Save
               </Button>
             </>

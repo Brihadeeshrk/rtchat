@@ -4,6 +4,7 @@ import { ChakraProvider } from "@chakra-ui/react";
 import { theme } from "@/chakra/theme";
 import { ApolloProvider } from "@apollo/client";
 import { client } from "@/graphql/apollo-client";
+import { Toaster } from "react-hot-toast";
 
 export default function App({
   Component,
@@ -14,6 +15,7 @@ export default function App({
       <ApolloProvider client={client}>
         <SessionProvider session={session}>
           <ChakraProvider theme={theme}>
+            <Toaster />
             <Component {...pageProps} />
           </ChakraProvider>
         </SessionProvider>

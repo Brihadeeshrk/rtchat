@@ -58,6 +58,7 @@ const userResolvers = {
         };
       }
 
+      // getting the currently logged in users id
       const { id: userId } = session.user;
 
       try {
@@ -90,7 +91,7 @@ const userResolvers = {
         return {
           success: true,
         };
-      } catch (error) {
+      } catch (error: any) {
         console.log("createUsername resolver error", error);
         // return the error to the front end
         return {
