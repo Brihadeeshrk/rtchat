@@ -15,6 +15,7 @@ declare module "next-auth" {
     // we now add the properties that we wish to add separately
     id: string;
     username: string;
+    image: string;
   }
 }
 

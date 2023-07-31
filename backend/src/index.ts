@@ -10,6 +10,8 @@ import { makeExecutableSchema } from "@graphql-tools/schema";
 import * as dotenv from "dotenv";
 import { createServer } from "http";
 import { getSession } from "next-auth/react";
+import { GraphQLContext } from "./util/types";
+import { PrismaClient } from "@prisma/client";
 
 async function main() {
   // initialising to use ENV files
@@ -36,6 +38,11 @@ async function main() {
     credentials: true,
   };
 
+  /*
+  Context Params
+  */
+  const prisma = new PrismaClient();
+
   await server.start();
 
   // context for the server is dealt here, for more info on context go to graphql/resolvers/user
@@ -51,11 +58,14 @@ async function main() {
       // 1 - User Session
       // 2 - Prisma Client that is used to communicate with db
       // 3 - Pubsub (not imp rn)
-      context: async ({ req }) => {
+
+      // this is an async fn so its going to return a PROMISE and its going to contain an object of type GraphQLContext
+      context: async ({ req }): Promise<GraphQLContext> => {
         // the client app sends us the auth headers necessary for validation, this is passed ot the getSession() and this returns the currently logged in user
+
+        // after adding prisma to our context, now all our resolvers can interact with the db
         const session = await getSession({ req });
-        console.log("CONSOLE SESSION", session);
-        return { session };
+        return { session, prisma };
       },
     })
   );
