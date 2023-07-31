@@ -3,7 +3,6 @@ import { signIn } from "next-auth/react";
 import { Session } from "next-auth";
 import { Button, Center, Image, Input, Stack, Text } from "@chakra-ui/react";
 import { useMutation } from "@apollo/client";
-import userOperations from "@/graphql/operations/user";
 
 type indexProps = {
   session: Session | null;
@@ -22,21 +21,12 @@ represents the structure of the data returned by the useMutation hook
 it is going to have the name of the mutation and inside that, whatever we are extracting from the GQL query in operations/user
 which in this case is a success bool and an error str
 */
-
-interface CreateUsernameData {
-  createUsername: {
-    success: boolean;
-    error: string;
-  };
-}
+import userOperations from "@/graphql/operations/user";
 
 /*
 the data we need to pass into the GQl query, which in this case is a username of type string
 */
-
-interface CreateUsernameVariables {
-  username: string;
-}
+import { CreateUsernameData, CreateUsernameVariables } from "@/util/types";
 
 const Auth: React.FC<indexProps> = ({ session, reloadSession }) => {
   const [username, setUsername] = useState("");
@@ -52,7 +42,10 @@ const Auth: React.FC<indexProps> = ({ session, reloadSession }) => {
     CreateUsernameVariables
   >(userOperations.Mutations.createUsername);
 
+  console.log("HERE IS DATA", data, loading, error);
+
   const onSubmit = async () => {
+    if (!username) return;
     // we need to use a GraphQL Mutation here
     // Mutations are used to create, update or delete resources
     // and in this case we are updating the 'User' resource by adding a username

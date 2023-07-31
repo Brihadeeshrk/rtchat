@@ -17,7 +17,10 @@ const userResolvers = {
   },
   Mutation: {
     // all of our user related mutation resolvers
-    createUsername: () => {},
+    createUsername: (_: any, args: { username: string }, context: any) => {
+      const { username } = args;
+      console.log("HERE AT THE createUsername API", username);
+    },
   },
   // Subscription: {},
 };

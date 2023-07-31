@@ -8,12 +8,15 @@ import { json } from "body-parser";
 import typeDefs from "./graphql/typeDefs/index";
 import resolvers from "./graphql/resolvers/index";
 import { makeExecutableSchema } from "@graphql-tools/schema";
+import * as dotenv from "dotenv";
 
 interface MyContext {
   token?: String;
 }
 
 async function main() {
+  dotenv.config();
+
   const app = express();
   const httpServer = http.createServer(app);
 
@@ -27,7 +30,10 @@ async function main() {
   await server.start();
   app.use(
     "/graphql",
-    cors<cors.CorsRequest>(),
+    cors<cors.CorsRequest>({
+      origin: true,
+      credentials: true,
+    }),
     json(),
     expressMiddleware(server, {
       context: async ({ req }) => ({ token: req.headers.token }),
