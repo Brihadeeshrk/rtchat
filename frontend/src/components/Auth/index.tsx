@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { signIn } from "next-auth/react";
 import { Session } from "next-auth";
 import { Button, Center, Image, Input, Stack, Text } from "@chakra-ui/react";
+import { useMutation } from "@apollo/client";
+import userOperations from "@/graphql/operations/user";
 
 type indexProps = {
   session: Session | null;
@@ -10,8 +12,45 @@ type indexProps = {
   // re-fetches the user and the session from the db after the user successfully enters the username and submits
 };
 
+// right now, typescript doesn't know what structure our data might have or what structure of input the query needs, which is why we are building interfaces to enforce type safety and robustness
+// without this, ONLY graphQL knows that username is to be taken as input, no one else knows this.
+// and this is why we need to create TypeScript types to model graphQL types so our code is typesafe
+
+/*
+the data we get back from the createUsername fn
+represents the structure of the data returned by the useMutation hook
+it is going to have the name of the mutation and inside that, whatever we are extracting from the GQL query in operations/user
+which in this case is a success bool and an error str
+*/
+
+interface CreateUsernameData {
+  createUsername: {
+    success: boolean;
+    error: string;
+  };
+}
+
+/*
+the data we need to pass into the GQl query, which in this case is a username of type string
+*/
+
+interface CreateUsernameVariables {
+  username: string;
+}
+
 const Auth: React.FC<indexProps> = ({ session, reloadSession }) => {
   const [username, setUsername] = useState("");
+
+  /*
+  useMutation<x,y>
+  x => the structure of data that is being returned
+  y => the structure of the data to be provided as a param
+  */
+
+  const [createUsername, { data, loading, error }] = useMutation<
+    CreateUsernameData,
+    CreateUsernameVariables
+  >(userOperations.Mutations.createUsername);
 
   const onSubmit = async () => {
     // we need to use a GraphQL Mutation here
@@ -21,6 +60,7 @@ const Auth: React.FC<indexProps> = ({ session, reloadSession }) => {
     // for now, a simple try-catch block here, but eventually a server will be built
     try {
       // createUsername mutation to send our username to the GraphQL API
+      await createUsername({ variables: { username: username } });
     } catch (error) {
       console.log("onSubmit Error");
     }
