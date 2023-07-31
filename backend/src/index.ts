@@ -2,38 +2,39 @@ import { ApolloServer } from "@apollo/server";
 import { expressMiddleware } from "@apollo/server/express4";
 import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
 import express from "express";
-import http from "http";
 import cors from "cors";
 import { json } from "body-parser";
 import typeDefs from "./graphql/typeDefs/index";
 import resolvers from "./graphql/resolvers/index";
 import { makeExecutableSchema } from "@graphql-tools/schema";
 import * as dotenv from "dotenv";
-
-interface MyContext {
-  token?: String;
-}
+import { createServer } from "http";
 
 async function main() {
   dotenv.config();
 
   const app = express();
-  const httpServer = http.createServer(app);
+  const httpServer = createServer(app);
 
   // package used to create an executable schema
   const schema = makeExecutableSchema({ typeDefs, resolvers });
 
-  const server = new ApolloServer<MyContext>({
+  const server = new ApolloServer({
     schema,
+    csrfPrevention: true,
     plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
   });
+
+  const corsOptions = {
+    origin: process.env.CLIENT_ORIGIN,
+    credentials: true,
+  };
+
   await server.start();
+
   app.use(
     "/graphql",
-    cors<cors.CorsRequest>({
-      origin: true,
-      credentials: true,
-    }),
+    cors<cors.CorsRequest>(corsOptions),
     json(),
     expressMiddleware(server, {
       context: async ({ req }) => ({ token: req.headers.token }),
@@ -41,9 +42,11 @@ async function main() {
   );
 
   await new Promise<void>((resolve) =>
-    httpServer.listen({ port: 4000 }, resolve)
+    httpServer.listen({ port: process.env.PORT }, resolve)
   );
-  console.log(`🚀 Server ready at http://localhost:4000/graphql`);
+  console.log(
+    `🚀 Server ready at http://localhost:${process.env.PORT}/graphql`
+  );
 }
 
 main().catch((err) => console.log("ERROR IN src/index.ts/MAIN", err));
