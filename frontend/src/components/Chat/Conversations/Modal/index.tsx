@@ -1,5 +1,9 @@
 import userOperations from "@/graphql/operations/user";
-import { SearchUsernameData, SearchUsernameVariables } from "@/util/types";
+import {
+  SearchUsernameData,
+  SearchUsernameVariables,
+  SearchedUser,
+} from "@/util/types";
 import { useLazyQuery, useQuery } from "@apollo/client";
 import {
   Button,
@@ -23,6 +27,7 @@ interface indexProps {
 
 const ConversationModal: React.FC<indexProps> = ({ isOpen, onClose }) => {
   const [username, setUsername] = useState("");
+  const [participants, setParticipants] = useState<Array<SearchedUser>>([]);
   // the useQuery hook will be called as soon as this component is mounted to the DOM
   // which doesnt make sense right, why will we search for users when the user hasnt even entered a username, right?
   // so we need a bit more control as to when this query is going to fire
@@ -52,6 +57,16 @@ const ConversationModal: React.FC<indexProps> = ({ isOpen, onClose }) => {
 
     console.log("THIS IS RESPONSE", data, loading, error);
   };
+
+  const addParticipant = (user: SearchedUser) => {
+    setParticipants((prev) => [...prev, user]);
+    setUsername("");
+  };
+
+  const removeParticipant = (userId: string) => {
+    setParticipants((prev) => prev.filter((item) => item.id !== userId));
+  };
+
   return (
     <>
       <Modal isCentered isOpen={isOpen} onClose={onClose}>
@@ -76,7 +91,12 @@ const ConversationModal: React.FC<indexProps> = ({ isOpen, onClose }) => {
                 </Button>
               </Stack>
             </form>
-            {data?.searchUsers && <UserSearchList users={data.searchUsers} />}
+            {data?.searchUsers && (
+              <UserSearchList
+                users={data.searchUsers}
+                addParticipant={addParticipant}
+              />
+            )}
           </ModalBody>
         </ModalContent>
       </Modal>
