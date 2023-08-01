@@ -8,3 +8,19 @@ export interface CreateUsernameData {
     error: string;
   };
 }
+
+export interface SearchUsernameVariables {
+  username: string;
+}
+
+export interface SearchedUser {
+  id: string;
+  username: string;
+}
+
+export interface SearchUsernameData {
+  // if you go to graphql/operations/user, we can observe that we're only extracting the username and the id of the user
+  // so the type of entities are an array of {id, username}
+  // we've just declared a separate type for this above as it is different from the User type
+  searchUsers: Array<SearchedUser>;
+}

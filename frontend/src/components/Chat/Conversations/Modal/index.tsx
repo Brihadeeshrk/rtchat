@@ -1,3 +1,6 @@
+import userOperations from "@/graphql/operations/user";
+import { SearchUsernameData, SearchUsernameVariables } from "@/util/types";
+import { useLazyQuery, useQuery } from "@apollo/client";
 import {
   Button,
   ModalOverlay,
@@ -19,10 +22,32 @@ interface indexProps {
 
 const ConversationModal: React.FC<indexProps> = ({ isOpen, onClose }) => {
   const [username, setUsername] = useState("");
+  // the useQuery hook will be called as soon as this component is mounted to the DOM
+  // which doesnt make sense right, why will we search for users when the user hasnt even entered a username, right?
+  // so we need a bit more control as to when this query is going to fire
 
-  const onSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+  // const { data, loading, error } = useQuery(userOperations.Queries.searchUsers);
+  // and to solve this, we have another hook we can use called, useLazyQuery
+  // with useLazyQuery we can choose exactly when we want this query to fire
+
+  // the syntax for useLazyQuery is very much like useMutation
+
+  /*
+  useLazyQuery<x,y>(query)
+  x => the structure of data that is being returned
+  y => the structure of the data to be provided as a param
+  */
+  const [searchUsers, { data, loading, error }] = useLazyQuery<
+    SearchUsernameData,
+    SearchUsernameVariables
+  >(userOperations.Queries.searchUsers);
+
+  const onSearch = (event: React.FormEvent<HTMLFormElement>) => {
+    // even though this function is querying the db, there is no need to make this async and the asynchronicity is handled by the useLazyQuery hook
+    // as it provides us with the loading, error and data vars
     event.preventDefault();
-    // searchUsers query
+
+    searchUsers({ variables: { username: username } });
   };
   return (
     <>
@@ -32,14 +57,18 @@ const ConversationModal: React.FC<indexProps> = ({ isOpen, onClose }) => {
           <ModalHeader>Modal Title</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
-            <form onSubmit={onSubmit}>
+            <form onSubmit={onSearch}>
               <Stack spacing={4}>
                 <Input
                   placeholder="Enter a username"
                   value={username}
                   onChange={(event) => setUsername(event.target.value)}
                 />
-                <Button type="submit" isDisabled={!username}>
+                <Button
+                  isLoading={loading}
+                  type="submit"
+                  isDisabled={!username}
+                >
                   Search
                 </Button>
               </Stack>

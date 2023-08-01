@@ -2,7 +2,17 @@
 import { gql } from "@apollo/client";
 
 const userOperations = {
-  Queries: {},
+  Queries: {
+    searchUsers: gql`
+      # Going to create a Query (READ) operation so we're going to use the query keyword
+      query SearchUsers($username: String!) {
+        searchUsers(username: $username) {
+          id
+          username
+        }
+      }
+    `,
+  },
   Mutations: {
     createUsername: gql`
       # The Difference between a REST API and a graphQL API is that,

@@ -33,7 +33,7 @@ const Auth: React.FC<indexProps> = ({ session, reloadSession }) => {
   const [username, setUsername] = useState("");
 
   /*
-  useMutation<x,y>
+  useMutation<x,y>(mutation)
   x => the structure of data that is being returned
   y => the structure of the data to be provided as a param
   */
