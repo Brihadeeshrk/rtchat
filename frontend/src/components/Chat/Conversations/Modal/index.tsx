@@ -78,7 +78,6 @@ const ConversationModal: React.FC<indexProps> = ({
     // even though this function is querying the db, there is no need to make this async and the asynchronicity is handled by the useLazyQuery hook
     // as it provides us with the loading, error and data vars
     event.preventDefault();
-    console.log("inside onSearch");
     searchUsers({ variables: { username } });
   };
 
