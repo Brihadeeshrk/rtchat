@@ -6,7 +6,9 @@ a MUTATION resolver
 a SUBSCRIPTION resolver 
 */
 
+import { ApolloError } from "apollo-server-core";
 import { GraphQLContext, createUsernameResponse } from "../../util/types";
+import { User } from "@prisma/client";
 
 // the typeDefs and the resolvers combine to give the structure of the graphQL API
 // the resolvers for Query and Mutation were taken from the typeDef file: graphql/typeDefs/user
@@ -15,7 +17,41 @@ import { GraphQLContext, createUsernameResponse } from "../../util/types";
 const userResolvers = {
   Query: {
     // all of our user related query resolvers
-    searchUsers: () => {},
+    searchUsers: async (
+      _: any,
+      args: { username: string },
+      context: GraphQLContext
+    ): Promise<Array<User>> => {
+      const { username: searchedUsername } = args;
+      const { prisma, session } = context;
+
+      if (!session?.user) {
+        // if there is no user signed in, return
+        throw new ApolloError("Not authorised");
+      }
+
+      // the reason we extract our username is so that we dont return our own username along with the Array of searched Users
+      const { username: myUsername } = session.user;
+
+      try {
+        // finding all records in the user document
+        const users = await prisma.user.findMany({
+          // where username contains the SEARCHEDUSERNAME but dont include MYUSERNAME and dont be case sensitive when searching
+          where: {
+            username: {
+              contains: searchedUsername,
+              not: myUsername,
+              mode: "insensitive",
+            },
+          },
+        });
+
+        return users;
+      } catch (error: any) {
+        console.log("searchUsers Query Error", error);
+        throw new ApolloError(error.message);
+      }
+    },
   },
   Mutation: {
     // all of our user related mutation resolvers

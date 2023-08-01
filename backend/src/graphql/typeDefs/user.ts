@@ -4,7 +4,7 @@ const userTypeDefs = `#graphql
   # we can declare an entity type in a graphQL string using the keyword type followed by the name of the entity
 
   # inside of these {} we can declare all of the fields the user is going to have as well as the types of these fields
-  type User {
+  type SearchedUser {
     id: String
     username: String
   }
@@ -16,7 +16,7 @@ const userTypeDefs = `#graphql
   # it lists all of the available queries that
   # clients can execute, along with the return type for each.
   type Query {
-    searchUsers(useraname: String): [User]
+    searchUsers(username: String): [SearchedUser]
   }
 
   # In this case, the "searchUsers" query returns an array of zero or more Users (defined above).

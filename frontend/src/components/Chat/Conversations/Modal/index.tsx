@@ -14,6 +14,7 @@ import {
   Input,
 } from "@chakra-ui/react";
 import React, { useState } from "react";
+import UserSearchList from "./UserSearchList";
 
 interface indexProps {
   isOpen: boolean;
@@ -46,15 +47,17 @@ const ConversationModal: React.FC<indexProps> = ({ isOpen, onClose }) => {
     // even though this function is querying the db, there is no need to make this async and the asynchronicity is handled by the useLazyQuery hook
     // as it provides us with the loading, error and data vars
     event.preventDefault();
+    console.log("inside onSearch");
+    searchUsers({ variables: { username } });
 
-    searchUsers({ variables: { username: username } });
+    console.log("THIS IS RESPONSE", data, loading, error);
   };
   return (
     <>
-      <Modal isOpen={isOpen} onClose={onClose}>
+      <Modal isCentered isOpen={isOpen} onClose={onClose}>
         <ModalOverlay />
         <ModalContent bg="#2d2d2d" pb={4}>
-          <ModalHeader>Modal Title</ModalHeader>
+          <ModalHeader>Create a Conversation</ModalHeader>
           <ModalCloseButton />
           <ModalBody>
             <form onSubmit={onSearch}>
@@ -73,6 +76,7 @@ const ConversationModal: React.FC<indexProps> = ({ isOpen, onClose }) => {
                 </Button>
               </Stack>
             </form>
+            {data?.searchUsers && <UserSearchList users={data.searchUsers} />}
           </ModalBody>
         </ModalContent>
       </Modal>
