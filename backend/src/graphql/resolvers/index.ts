@@ -1,3 +1,4 @@
+import conversationResolvers from "./conversation";
 import userResolvers from "./user";
 import merge from "lodash.merge";
 
@@ -7,6 +8,6 @@ import merge from "lodash.merge";
 // the first param is the destination obj, where all our merged resolvers end up
 // all the other params are the resolvers we wish to merge
 
-const resolvers = merge({}, userResolvers);
+const resolvers = merge({}, userResolvers, conversationResolvers);
 
 export default resolvers;

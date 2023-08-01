@@ -1,3 +1,5 @@
+// USER TYPES
+
 export interface CreateUsernameVariables {
   username: string;
 }
@@ -23,4 +25,16 @@ export interface SearchUsernameData {
   // so the type of entities are an array of {id, username}
   // we've just declared a separate type for this above as it is different from the User type
   searchUsers: Array<SearchedUser>;
+}
+
+// CONVERSATION TYPES
+
+export interface CreateConversationData {
+  createConversation: {
+    conversationId: string;
+  };
+}
+
+export interface CreateConversationVariables {
+  participantIds: string[];
 }

@@ -1,35 +1,49 @@
 import userOperations from "@/graphql/operations/user";
 import {
+  CreateConversationData,
+  CreateConversationVariables,
   SearchUsernameData,
   SearchUsernameVariables,
   SearchedUser,
 } from "@/util/types";
-import { useLazyQuery, useQuery } from "@apollo/client";
+import { useLazyQuery, useMutation } from "@apollo/client";
 import {
   Button,
-  ModalOverlay,
+  Input,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
   ModalContent,
   ModalHeader,
-  ModalCloseButton,
-  ModalBody,
-  ModalFooter,
-  Modal,
+  ModalOverlay,
   Stack,
-  Input,
 } from "@chakra-ui/react";
 import React, { useState } from "react";
-import UserSearchList from "./UserSearchList";
-import Participants from "./Participants";
 import toast from "react-hot-toast";
+import Participants from "./Participants";
+import UserSearchList from "./UserSearchList";
+import conversationOperations from "@/graphql/operations/conversation";
+import { Session } from "next-auth";
 
 interface indexProps {
   isOpen: boolean;
   onClose: () => void;
+  session: Session;
 }
 
-const ConversationModal: React.FC<indexProps> = ({ isOpen, onClose }) => {
+const ConversationModal: React.FC<indexProps> = ({
+  isOpen,
+  onClose,
+  session,
+}) => {
   const [username, setUsername] = useState("");
   const [participants, setParticipants] = useState<Array<SearchedUser>>([]);
+
+  // extracting the userId
+  const {
+    user: { id: userId },
+  } = session;
+
   // the useQuery hook will be called as soon as this component is mounted to the DOM
   // which doesnt make sense right, why will we search for users when the user hasnt even entered a username, right?
   // so we need a bit more control as to when this query is going to fire
@@ -45,10 +59,20 @@ const ConversationModal: React.FC<indexProps> = ({ isOpen, onClose }) => {
   x => the structure of data that is being returned
   y => the structure of the data to be provided as a param
   */
-  const [searchUsers, { data, loading, error }] = useLazyQuery<
-    SearchUsernameData,
-    SearchUsernameVariables
-  >(userOperations.Queries.searchUsers);
+  //  Aliasing the variables so that the variables form the useLazyQuery and the useMutation don't cause naming conflicts
+  const [
+    searchUsers,
+    { data: userData, loading: userLoading, error: userError },
+  ] = useLazyQuery<SearchUsernameData, SearchUsernameVariables>(
+    userOperations.Queries.searchUsers
+  );
+
+  //  Aliasing the variables so that the variables form the useLazyQuery and the useMutation don't cause naming conflicts
+  // only extracting loading from here, as we can obtain the data and the errors from when we call this function
+  const [createConversation, { loading: conversationLoading }] = useMutation<
+    CreateConversationData,
+    CreateConversationVariables
+  >(conversationOperations.Mutations.createConversation);
 
   const onSearch = (event: React.FormEvent<HTMLFormElement>) => {
     // even though this function is querying the db, there is no need to make this async and the asynchronicity is handled by the useLazyQuery hook
@@ -56,11 +80,10 @@ const ConversationModal: React.FC<indexProps> = ({ isOpen, onClose }) => {
     event.preventDefault();
     console.log("inside onSearch");
     searchUsers({ variables: { username } });
-
-    console.log("THIS IS RESPONSE", data, loading, error);
   };
 
   const addParticipant = (user: SearchedUser) => {
+    // if the participant is already added to the state[] then return
     if (participants.some((participant) => participant.id === user.id)) {
       return;
     }
@@ -73,8 +96,18 @@ const ConversationModal: React.FC<indexProps> = ({ isOpen, onClose }) => {
   };
 
   const onCreateConversation = async () => {
+    const participantIds = [
+      userId,
+      ...participants.map((participant) => participant.id),
+    ];
     try {
-      // call createConversation mutation
+      const { data } = await createConversation({
+        variables: {
+          participantIds: participantIds,
+        },
+      });
+
+      console.log("HERE IS THE NEW DATA", data);
     } catch (error: any) {
       console.log("onCreateConversation error", error);
       toast.error(error.message);
@@ -97,7 +130,7 @@ const ConversationModal: React.FC<indexProps> = ({ isOpen, onClose }) => {
                   onChange={(event) => setUsername(event.target.value)}
                 />
                 <Button
-                  isLoading={loading}
+                  isLoading={userLoading}
                   type="submit"
                   isDisabled={!username}
                 >
@@ -105,9 +138,9 @@ const ConversationModal: React.FC<indexProps> = ({ isOpen, onClose }) => {
                 </Button>
               </Stack>
             </form>
-            {data?.searchUsers && (
+            {userData?.searchUsers && (
               <UserSearchList
-                users={data.searchUsers}
+                users={userData.searchUsers}
                 addParticipant={addParticipant}
                 participants={participants}
               />
@@ -123,7 +156,8 @@ const ConversationModal: React.FC<indexProps> = ({ isOpen, onClose }) => {
                   width="100%"
                   mt={6}
                   _hover={{ bg: "brand.100" }}
-                  onClick={() => {}}
+                  onClick={onCreateConversation}
+                  isLoading={conversationLoading}
                 >
                   Start Conversation
                 </Button>
