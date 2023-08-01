@@ -6,7 +6,7 @@ a MUTATION resolver
 a SUBSCRIPTION resolver 
 */
 
-import { ApolloError } from "apollo-server-core";
+import { GraphQLError } from "graphql";
 import { GraphQLContext, createUsernameResponse } from "../../util/types";
 import { User } from "@prisma/client";
 
@@ -27,7 +27,7 @@ const userResolvers = {
 
       if (!session?.user) {
         // if there is no user signed in, return
-        throw new ApolloError("Not authorised");
+        throw new GraphQLError("Not authorised");
       }
 
       // the reason we extract our username is so that we dont return our own username along with the Array of searched Users
@@ -49,7 +49,7 @@ const userResolvers = {
         return users;
       } catch (error: any) {
         console.log("searchUsers Query Error", error);
-        throw new ApolloError(error.message);
+        throw new GraphQLError(error.message);
       }
     },
   },

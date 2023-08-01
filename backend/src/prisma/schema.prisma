@@ -1,7 +1,6 @@
 generator client {
     provider = "prisma-client-js"
     // No need to use Binary Targets, worked without it for ecommerce-template
-    // binaryTargets = ["native", "darwin", "darwin-arm64"]
 }
 
 datasource db {
