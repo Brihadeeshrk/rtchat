@@ -8,8 +8,6 @@ import Head from "next/head";
 export default function Home() {
   const { data: session } = useSession();
 
-  console.log("THIS IS THE SESSION", session);
-
   const reloadSession = () => {
     const event = new Event("visibilitychange");
     document.dispatchEvent(event);
@@ -25,7 +23,7 @@ export default function Home() {
       </Head>
       <Box>
         {session?.user.username ? (
-          <Chat />
+          <Chat session={session} />
         ) : (
           <Auth session={session} reloadSession={reloadSession} />
         )}
