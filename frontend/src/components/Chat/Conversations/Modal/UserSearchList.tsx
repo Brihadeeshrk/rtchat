@@ -5,11 +5,13 @@ import React from "react";
 interface UserSearchListProps {
   users: Array<SearchedUser>;
   addParticipant: (user: SearchedUser) => void;
+  participants: Array<SearchedUser>;
 }
 
 const UserSearchList: React.FC<UserSearchListProps> = ({
   users,
   addParticipant,
+  participants,
 }) => {
   return (
     <>
@@ -22,6 +24,7 @@ const UserSearchList: React.FC<UserSearchListProps> = ({
           <Stack mt={6}>
             {users.map((user) => (
               <Stack
+                transition="0.4s"
                 direction="row"
                 key={user.id}
                 align="center"
@@ -34,13 +37,26 @@ const UserSearchList: React.FC<UserSearchListProps> = ({
                 <Avatar src="" />
                 <Flex align={"center"} justify="space-between" width="100%">
                   <Text color={"whiteAlpha.700"}>{user.username}</Text>
-                  <Button
-                    bg={"brand.100"}
-                    _hover={{ bg: "brand.100" }}
-                    onClick={() => addParticipant(user)}
-                  >
-                    Chat
-                  </Button>
+                  {participants.some(
+                    (participant) => participant.id === user.id
+                  ) ? (
+                    <Button
+                      bg={"brand.200"}
+                      color={"black"}
+                      _hover={{ bg: "brand.200" }}
+                      onClick={() => addParticipant(user)}
+                    >
+                      Added
+                    </Button>
+                  ) : (
+                    <Button
+                      bg={"brand.100"}
+                      _hover={{ bg: "brand.100" }}
+                      onClick={() => addParticipant(user)}
+                    >
+                      Chat
+                    </Button>
+                  )}
                 </Flex>
               </Stack>
             ))}

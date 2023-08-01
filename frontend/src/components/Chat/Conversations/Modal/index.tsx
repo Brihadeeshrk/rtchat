@@ -19,6 +19,8 @@ import {
 } from "@chakra-ui/react";
 import React, { useState } from "react";
 import UserSearchList from "./UserSearchList";
+import Participants from "./Participants";
+import toast from "react-hot-toast";
 
 interface indexProps {
   isOpen: boolean;
@@ -59,12 +61,24 @@ const ConversationModal: React.FC<indexProps> = ({ isOpen, onClose }) => {
   };
 
   const addParticipant = (user: SearchedUser) => {
+    if (participants.some((participant) => participant.id === user.id)) {
+      return;
+    }
     setParticipants((prev) => [...prev, user]);
     setUsername("");
   };
 
   const removeParticipant = (userId: string) => {
     setParticipants((prev) => prev.filter((item) => item.id !== userId));
+  };
+
+  const onCreateConversation = async () => {
+    try {
+      // call createConversation mutation
+    } catch (error: any) {
+      console.log("onCreateConversation error", error);
+      toast.error(error.message);
+    }
   };
 
   return (
@@ -95,7 +109,25 @@ const ConversationModal: React.FC<indexProps> = ({ isOpen, onClose }) => {
               <UserSearchList
                 users={data.searchUsers}
                 addParticipant={addParticipant}
+                participants={participants}
               />
+            )}
+            {participants.length !== 0 && (
+              <>
+                <Participants
+                  participants={participants}
+                  removeParticipant={removeParticipant}
+                />
+                <Button
+                  bg="brand.100"
+                  width="100%"
+                  mt={6}
+                  _hover={{ bg: "brand.100" }}
+                  onClick={() => {}}
+                >
+                  Start Conversation
+                </Button>
+              </>
             )}
           </ModalBody>
         </ModalContent>
