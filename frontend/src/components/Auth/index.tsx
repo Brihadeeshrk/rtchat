@@ -76,7 +76,7 @@ const Auth: React.FC<indexProps> = ({ session, reloadSession }) => {
       // reload session to obtain new username
       reloadSession();
     } catch (error: any) {
-      toast.error(error?.message);
+      toast.error("Error creating username");
       console.log("onSubmit Error", error);
     }
   };
