@@ -4,6 +4,7 @@ import React from "react";
 import ConversationList from "./ConversationList";
 import { useQuery } from "@apollo/client";
 import conversationOperations from "@/graphql/operations/conversation";
+import { ConversationsData } from "@/util/types";
 
 interface ConversationsWrapperProps {
   session: Session;
@@ -16,7 +17,9 @@ const ConversationsWrapper: React.FC<ConversationsWrapperProps> = ({
     data: conversationsData,
     loading: conversationsLoading,
     error: conversationsError,
-  } = useQuery(conversationOperations.Queries.conversations);
+  } = useQuery<ConversationsData, null>(
+    conversationOperations.Queries.conversations
+  );
 
   console.log(
     "HERE IS DATA",
