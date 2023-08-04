@@ -3,6 +3,7 @@ import { ApolloClient, HttpLink, InMemoryCache, split } from "@apollo/client";
 import { GraphQLWsLink } from "@apollo/client/link/subscriptions";
 import { getMainDefinition } from "@apollo/client/utilities";
 import { createClient } from "graphql-ws";
+import { getSession } from "next-auth/react";
 
 // this is the graphQL endpoint that is going to allow us to send http req to our server
 // when we get to real-time data such as subscriptions, we need to create a websocket
@@ -43,6 +44,9 @@ const wsLink =
     ? new GraphQLWsLink(
         createClient({
           url: "ws://localhost:4000/graphql/subscriptions",
+          connectionParams: async () => ({
+            session: await getSession(),
+          }),
         })
       )
     : null;

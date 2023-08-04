@@ -4,6 +4,7 @@ import {
   conversationPopulated,
   participantPopulated,
 } from "../graphql/resolvers/conversation";
+import { Context } from "graphql-ws/lib/server";
 
 // USER
 // createUsername
@@ -33,6 +34,18 @@ export interface GraphQLContext {
   session: Session | null;
   prisma: PrismaClient;
   // pubsub
+}
+
+// context works a bit differently with subscriptions that it does with normal http requests
+// we need to declare CONNECTION PARAMS for our subs and on those PARAMS were going to have our user session
+/** The parameters passed during the connection initialisation.
+ * one of the pieces of data that we want to send with this data is the next-auth user session
+ * and these connectionParams are declared on the client side while intialising the connection, and these params will be available to all our subsription resolvers
+ */
+export interface SubscriptionContext extends Context {
+  connectionParams: {
+    session?: Session;
+  };
 }
 
 // CONVERSATIONS

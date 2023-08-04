@@ -10,8 +10,10 @@ import { makeExecutableSchema } from "@graphql-tools/schema";
 import * as dotenv from "dotenv";
 import { createServer } from "http";
 import { getSession } from "next-auth/react";
-import { GraphQLContext, Session } from "./util/types";
+import { GraphQLContext, Session, SubscriptionContext } from "./util/types";
 import { PrismaClient } from "@prisma/client";
+import { WebSocketServer } from "ws";
+import { useServer } from "graphql-ws/lib/use/ws";
 
 async function main() {
   // initialising to use ENV files
@@ -19,15 +21,58 @@ async function main() {
 
   const app = express();
   const httpServer = createServer(app);
+  // this is the websocket link
+  const wsServer = new WebSocketServer({
+    server: httpServer,
+    path: "/graphql/subscriptions",
+  });
 
   // package used to create an executable schema
   const schema = makeExecutableSchema({ typeDefs, resolvers });
+
+  /*
+  Context Params
+  */
+  const prisma = new PrismaClient();
+
+  // Save the returned server's info so we can shutdown this server later
+  const serverCleanup = useServer(
+    {
+      schema,
+      // establishing the subs context which is of type graphQL contxt, as in it will have the same vars
+      // we're checking if a user is logged in, if they are, session is a part of the context along with prisma
+      // else it is null
+      context: async (ctx: SubscriptionContext): Promise<GraphQLContext> => {
+        if (ctx.connectionParams && ctx.connectionParams.session) {
+          const { session } = ctx.connectionParams;
+
+          return { session, prisma };
+        }
+        return { session: null, prisma };
+      },
+    },
+    wsServer
+  );
 
   // creating the apollo server
   const server = new ApolloServer({
     schema,
     csrfPrevention: true,
-    plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
+    plugins: [
+      // Proper shutdown for the HTTP server.
+      ApolloServerPluginDrainHttpServer({ httpServer }),
+
+      // Proper shutdown for the WebSocket server.
+      {
+        async serverWillStart() {
+          return {
+            async drainServer() {
+              await serverCleanup.dispose();
+            },
+          };
+        },
+      },
+    ],
   });
 
   // options to handle cors, otigin can be an array of url's
@@ -37,11 +82,6 @@ async function main() {
     origin: process.env.CLIENT_ORIGIN,
     credentials: true,
   };
-
-  /*
-  Context Params
-  */
-  const prisma = new PrismaClient();
 
   await server.start();
 
