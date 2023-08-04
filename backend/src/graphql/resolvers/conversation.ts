@@ -1,11 +1,58 @@
 import { GraphQLError } from "graphql";
-import { GraphQLContext } from "../../util/types";
+import { ConversationPopulated, GraphQLContext } from "../../util/types";
 import { Prisma } from "@prisma/client";
 
 const conversationResolvers = {
   Query: {
-    conversations: async (_: any, __: any, context: GraphQLContext) => {
-      console.log("CONVERSATIONS QUERY");
+    conversations: async (
+      _: any,
+      __: any,
+      context: GraphQLContext
+    ): Promise<Array<ConversationPopulated>> => {
+      const { prisma, session } = context;
+
+      if (!session?.user) {
+        // if there is no user signed in, return
+        throw new GraphQLError("Not authorised");
+      }
+
+      const {
+        user: { id: userId },
+      } = session;
+
+      try {
+        /*
+        the following code is correct with respect to syntax and query logic
+        the reason it doesnt work is due to a suspected bug in the prisma mongo adapter
+
+        const conversations = await prisma.conversation.findMany({
+          where: {
+            participants: {
+              // find conversations with participants where SOME of the users in these conversations match the userId of the signed in user
+              some: {
+                userId: {
+                  equals: userId,
+                },
+              },
+            },
+          },
+          include: conversationPopulated,
+        });
+        */
+
+        // since the above code wouldnt work, we're going to fetch all the conversations and filter through them and return that array back to the front end
+
+        const conversations = await prisma.conversation.findMany({
+          include: conversationPopulated,
+        });
+
+        return conversations.filter(
+          (convo) => !!convo.participants.find((user) => user.userId === userId)
+        );
+      } catch (error: any) {
+        console.log("ERROR WHILE FETCHING CONVERSATIONS", error);
+        throw new GraphQLError("Error fetching conversations");
+      }
     },
   },
   Mutation: {

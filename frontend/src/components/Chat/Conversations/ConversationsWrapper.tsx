@@ -30,7 +30,10 @@ const ConversationsWrapper: React.FC<ConversationsWrapperProps> = ({
   return (
     <Box px={3} py={6} width={{ base: "100%", md: "400px" }} bg="whiteAlpha.50">
       {/* Skeleton Loader */}
-      <ConversationList session={session} />
+      <ConversationList
+        session={session}
+        conversations={conversationsData?.conversations || []}
+      />
     </Box>
   );
 };
