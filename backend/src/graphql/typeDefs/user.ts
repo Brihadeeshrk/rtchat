@@ -4,6 +4,16 @@ const userTypeDefs = `#graphql
   # we can declare an entity type in a graphQL string using the keyword type followed by the name of the entity
 
   # inside of these {} we can declare all of the fields the user is going to have as well as the types of these fields
+
+  type User {
+    id: String
+    name: String
+    username: String
+    email: String
+    emailVerified: Boolean
+    image: String
+  }
+
   type SearchedUser {
     id: String
     username: String

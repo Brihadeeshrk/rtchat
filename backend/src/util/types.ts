@@ -1,5 +1,6 @@
-import { PrismaClient } from "@prisma/client";
+import { Prisma, PrismaClient } from "@prisma/client";
 import { ISODateString } from "next-auth";
+import { conversationPopulated } from "../graphql/resolvers/conversation";
 
 // USER
 // createUsername
@@ -30,3 +31,9 @@ export interface GraphQLContext {
   prisma: PrismaClient;
   // pubsub
 }
+
+// CONVERSATIONS
+// this will create a TS type for a query
+export type ConversationPopulated = Prisma.ConversationGetPayload<{
+  include: typeof conversationPopulated;
+}>;

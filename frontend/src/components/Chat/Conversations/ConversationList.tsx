@@ -15,7 +15,7 @@ const ConversationList: React.FC<ConversationListProps> = ({ session }) => {
   const onClose = () => setIsOpen(false);
 
   return (
-    <Box width="100%">
+    <Flex width="100%">
       <Flex
         align="center"
         justify="center"
@@ -28,6 +28,7 @@ const ConversationList: React.FC<ConversationListProps> = ({ session }) => {
       >
         <Icon as={BiSearch} mr={3} />
         <Text
+          fontSize="15px"
           _selection={{ bg: "none" }}
           color="whiteAlpha.800"
           fontWeight={500}
@@ -37,7 +38,7 @@ const ConversationList: React.FC<ConversationListProps> = ({ session }) => {
       </Flex>
 
       <ConversationModal session={session} isOpen={isOpen} onClose={onClose} />
-    </Box>
+    </Flex>
   );
 };
 export default ConversationList;
