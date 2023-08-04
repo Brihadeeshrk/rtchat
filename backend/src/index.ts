@@ -14,6 +14,7 @@ import { GraphQLContext, Session, SubscriptionContext } from "./util/types";
 import { PrismaClient } from "@prisma/client";
 import { WebSocketServer } from "ws";
 import { useServer } from "graphql-ws/lib/use/ws";
+import { PubSub } from "graphql-subscriptions";
 
 async function main() {
   // initialising to use ENV files
@@ -34,6 +35,8 @@ async function main() {
   Context Params
   */
   const prisma = new PrismaClient();
+  // this is a publisher-subscriber functionality, as we are subscribing to the events in this chat and are receiving notifs as such
+  const pubsub = new PubSub();
 
   // Save the returned server's info so we can shutdown this server later
   const serverCleanup = useServer(
@@ -46,9 +49,9 @@ async function main() {
         if (ctx.connectionParams && ctx.connectionParams.session) {
           const { session } = ctx.connectionParams;
 
-          return { session, prisma };
+          return { session, prisma, pubsub };
         }
-        return { session: null, prisma };
+        return { session: null, prisma, pubsub };
       },
     },
     wsServer
@@ -107,7 +110,7 @@ async function main() {
         const session = (await getSession({ req })) as Session | null;
         //  getSession returns a type of Session from next-auth, but the type of variable we intend to use in context is our own
         //
-        return { session, prisma };
+        return { session, prisma, pubsub };
       },
     })
   );

@@ -32,6 +32,10 @@ const conversationTypeDefs = `#graphql
     type Query {
         conversations: [Conversation]
     }
+
+    type Subscription {
+        conversationCreated: Conversation
+    }
 `;
 
 export default conversationTypeDefs;

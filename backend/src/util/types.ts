@@ -5,6 +5,7 @@ import {
   participantPopulated,
 } from "../graphql/resolvers/conversation";
 import { Context } from "graphql-ws/lib/server";
+import { PubSub } from "graphql-subscriptions";
 
 // USER
 // createUsername
@@ -33,7 +34,7 @@ export interface Session {
 export interface GraphQLContext {
   session: Session | null;
   prisma: PrismaClient;
-  // pubsub
+  pubsub: PubSub;
 }
 
 // context works a bit differently with subscriptions that it does with normal http requests

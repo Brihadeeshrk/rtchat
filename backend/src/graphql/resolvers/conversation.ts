@@ -1,4 +1,4 @@
-import { GraphQLError } from "graphql";
+import { GraphQLError, subscribe } from "graphql";
 import { ConversationPopulated, GraphQLContext } from "../../util/types";
 import { Prisma } from "@prisma/client";
 
@@ -62,7 +62,7 @@ const conversationResolvers = {
       context: GraphQLContext
     ): Promise<{ conversationId: string }> => {
       const { participantIds } = args;
-      const { prisma, session } = context;
+      const { prisma, session, pubsub } = context;
       //  the conversation entity is going to have some relationship with other entities such as Users, and Messages
       // we need to know which users are part of which conversation and which messages are part of which conversation
       // before we can create such a conversation, we need to make some updates to our schema, so that when we create this conversation, the necessary relations are formed among the other entities
@@ -111,6 +111,16 @@ const conversationResolvers = {
         });
 
         // emit a CONVERSATION_CREATED pubsub event
+        /**
+         * pubsub.publish(arg1, arg2) syntax
+         * arg1 - name of the event were publishing
+         * arg2 - data (payload)
+         *
+         * and this will call the Subscription resolver below
+         */
+        pubsub.publish("CONVERSATION_CREATED", {
+          conversationCreated: conversation,
+        });
 
         return { conversationId: conversation.id };
       } catch (error: any) {
@@ -119,7 +129,20 @@ const conversationResolvers = {
       }
     },
   },
-  // Subscriptions: {}
+  Subscription: {
+    conversationCreated: (_: any, __: any, context: GraphQLContext) => {
+      const { pubsub } = context;
+      // An AsyncIterator object listens for events that are associated with a particular label (or set of labels) and adds them to a queue for processing.
+
+      // Every Subscription field resolver's subscribe function must return an AsyncIterator object.
+      const asyncIterable = pubsub.asyncIterator(["CONVERSATION_CREATED"]);
+      return asyncIterable;
+
+      // now since our conversationCreated is listening to this event, this subscribe fn is going to fire whenever this createConversation is published
+      // the whole goal of using a subscription, is to get the server to pass this newly created conversation entity to the client in REAL TIME as convos are created
+      // for this, the client needs to subscribe to this SUBSCRIPTION
+    },
+  },
 };
 
 // we need to make sure this snippet is readable by prisma, which is why we use a prisma validator and since this includes fields from ConversationParticipant, we set the type to ConversationParticipantInclude

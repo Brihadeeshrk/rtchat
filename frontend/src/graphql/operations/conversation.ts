@@ -1,7 +1,6 @@
 import { gql } from "@apollo/client";
 
 const ConversationFields = `
-  conversations {
     # from the conversations query, i want the id of the conversation
     id
     # from the participants field, i want the users' id and their username
@@ -29,14 +28,15 @@ const ConversationFields = `
       # when was the message sent? when was it created?
       createdAt
     }
-  }
 `;
 
 const conversationOperations = {
   Queries: {
     conversations: gql`
       query Conversations {
-        ${ConversationFields}
+        conversations {
+          ${ConversationFields}
+        }
       }
     `,
   },
@@ -49,7 +49,15 @@ const conversationOperations = {
       }
     `,
   },
-  Subscriptions: {},
+  Subscriptions: {
+    conversationCreated: gql`
+      subscription ConversationCreated {
+        conversationCreated {
+          ${ConversationFields}
+        }
+      }
+    `,
+  },
 };
 
 export default conversationOperations;
