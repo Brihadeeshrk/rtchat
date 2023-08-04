@@ -13,7 +13,7 @@ model Account {
     userId            String  @db.ObjectId
     type              String
     provider          String
-    providerAccountId String  @map("provider_account_id")
+    providerAccountId String
     refresh_token     String? @db.String
     access_token      String? @db.String
     expires_at        Int?
@@ -50,7 +50,7 @@ model User {
 
     // a user could have sent a million messages
     messages  Message[]
-    createdAt DateTime  @default(now())
+    createdAt String    @default("")
     updatedAt DateTime  @updatedAt
 }
 
@@ -86,7 +86,7 @@ model Conversation {
     // that is, to store the LATEST message
     // at any given point, there can only 1 LATEST MESSAGE right?
     // so this is a 1-1 relationship
-    latestMessageId String?  @unique @db.ObjectId
+    latestMessageId String?  @unique
     // but this latestMessage is optional as, you wont have a latest message when you start the convo
     latestMessage   Message? @relation(name: "latestConversationMessage", fields: [latestMessageId], references: [id], onUpdate: NoAction, onDelete: NoAction)
     createdAt       DateTime @default(now())
@@ -97,12 +97,12 @@ model ConversationParticipant {
     id String @id @default(auto()) @map("_id") @db.ObjectId
     // here, we're telling prisma to form a relation between the userId field in this model to the id field in the User model
 
-    userId               String       @db.ObjectId
+    userId               String
     // in the following line, we create a field user of type User and we establish a relation which states that:
     // the first variable, is the name of the field that acts as the foreign key in this relationship
     // and as the 2nd arg, we can pass this references[] and in this field, we can pass the field who is on the other side of this relationship
     user                 User         @relation(fields: [userId], references: [id])
-    conversationId       String       @db.ObjectId
+    conversationId       String
     // same explanation as above
     conversation         Conversation @relation(fields: [conversationId], references: [id])
     hasSeenLatestMessage Boolean
@@ -120,10 +120,10 @@ model Message {
 
     // a message can only be a part of 1 conversation
     conversation   Conversation @relation(name: "conversationMessages", fields: [conversationId], references: [id])
-    conversationId String       @db.ObjectId
+    conversationId String
 
     // same thing applies to USER-MESSAGE relationship | a user can send infinite messages but any message can only belong to 1 user
-    senderId String @db.ObjectId
+    senderId String
 
     // but every message can be mapped to only 1 user
     sender User @relation(fields: [senderId], references: [id])

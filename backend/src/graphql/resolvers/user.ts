@@ -116,11 +116,11 @@ const userResolvers = {
 
         // updating the record for the user with id (from context) and setting his username to username (from args)
         await prisma.user.update({
-          where: {
-            id: userId,
-          },
           data: {
             username,
+          },
+          where: {
+            id: userId,
           },
         });
 

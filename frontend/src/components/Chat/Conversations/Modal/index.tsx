@@ -24,6 +24,7 @@ import Participants from "./Participants";
 import UserSearchList from "./UserSearchList";
 import conversationOperations from "@/graphql/operations/conversation";
 import { Session } from "next-auth";
+import { useRouter } from "next/router";
 
 interface indexProps {
   isOpen: boolean;
@@ -36,6 +37,8 @@ const ConversationModal: React.FC<indexProps> = ({
   onClose,
   session,
 }) => {
+  const router = useRouter();
+
   const [username, setUsername] = useState("");
   const [participants, setParticipants] = useState<Array<SearchedUser>>([]);
 
@@ -106,7 +109,20 @@ const ConversationModal: React.FC<indexProps> = ({
         },
       });
 
-      console.log("HERE IS THE NEW DATA", data);
+      if (!data?.createConversation) {
+        throw new Error("Failed to create conversation");
+      }
+
+      const {
+        createConversation: { conversationId },
+      } = data;
+
+      router.push({ query: { conversationId } });
+
+      // clear state and close modal on successful convo creation
+      setParticipants([]);
+      setUsername("");
+      onClose();
     } catch (error: any) {
       console.log("onCreateConversation error", error);
       toast.error(error.message);
