@@ -23,8 +23,6 @@ const ConversationsWrapper: React.FC<ConversationsWrapperProps> = ({
     conversationOperations.Queries.conversations
   );
 
-  console.log("QUERY DATA", conversationsData);
-
   const subscribeToNewConversations = () => {
     subscribeToMore({
       document: conversationOperations.Subscriptions.conversationCreated,

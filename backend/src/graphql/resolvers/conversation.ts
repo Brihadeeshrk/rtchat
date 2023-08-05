@@ -135,8 +135,8 @@ const conversationResolvers = {
       // An AsyncIterator object listens for events that are associated with a particular label (or set of labels) and adds them to a queue for processing.
 
       // Every Subscription field resolver's subscribe function must return an AsyncIterator object.
-      const asyncIterable = pubsub.asyncIterator(["CONVERSATION_CREATED"]);
-      return asyncIterable;
+      console.log("IN SUBSCRIPTION CONSOLE");
+      return pubsub.asyncIterator(["CONVERSATION_CREATED"]);
 
       // now since our conversationCreated is listening to this event, this subscribe fn is going to fire whenever this createConversation is published
       // the whole goal of using a subscription, is to get the server to pass this newly created conversation entity to the client in REAL TIME as convos are created
